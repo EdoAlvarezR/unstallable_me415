@@ -1,4 +1,4 @@
-#Unstallable model airplane design, Fall 2017.
+# Unstallable model airplane design, Fall 2017.
 
 # Content
 * __415notebooksMOD__: Original code by Dr. Ning downgraded to julia 0.5.x and modified for our needs.
