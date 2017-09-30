@@ -292,6 +292,10 @@ function optwing(VARS)
     Clsystem $CLsystem
     Vars $VARS")
 
+    #Dinv = Lift/(0.5*rho*magVinf^2*pi*b^2) #TODO: ask about how to do this for the system, ie wing and canard
+    #CDinv_elliptic = Dinv/(0.5*rho*magVinf^2*S)
+    #einv = CDinv_system/CDinv_elliptic
+
 
     return OBJECTIVE, CONSTRAINTS, false
 end
