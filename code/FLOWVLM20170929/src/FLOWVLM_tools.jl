@@ -469,7 +469,7 @@ function save(self::Wing, filename::String;
   ext = "_vlm"*aux*".vtk"
 
   if path !=""
-    _path = string(path, (path[end]!="/" ? "/" : ""))
+    _path = string(path, (path[end:end]!="/" ? "/" : ""))
   else
     _path = ""
   end
