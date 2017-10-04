@@ -1,11 +1,12 @@
-
-include("../code/FLOWVLM20170929/src/FLOWVLM.jl")
+fileLoc = splitdir(@__FILE__)
+using PyPlot
+include("$(fileLoc[1])/../code/FLOWVLM20170929/src/FLOWVLM.jl")
 vlm = FLOWVLM
 save_path = "temp00/"
 run_name = "unstallable"
 
-save = true                            # Saves the vlm and opens it in paraview
-display = true                         # Calls paraview
+save = false                            # Saves the vlm and opens it in paraview
+display = false                         # Calls paraview
 save_horseshoes = true                 # Saves the vlm's horseshoes
 load_snopt = false                     # Loads and runs the optimizer
 mkdir = false                          # Creates and removes the save path
@@ -15,11 +16,12 @@ boxed_fuselage = false                 # Models the fuselage as a box (not
                                        #    physically right)
 sweep_AOA = true                       # Generates an anymation sweeping the AOA
 if sweep_AOA
-  save = true
+  plotcl = true
+  save = false
   display = false
   save_horseshoes = false
   load_snopt = false
-  save_fdom = true
+  save_fdom = false
 end
 
 global ite_num = -1
@@ -357,9 +359,11 @@ function optwing(VARS,AOA)
   Liftsystem= infosys["L"]
   CDinv_system=infosys["CD"]
   Ssystem = vlm.planform_area(system)
-  ClCL = system.sol["Cl/CL"]
-  Cl = ClCL*CLsystem
-  localClmax = maximum(Cl)
+  # ClCL = system.sol["Cl/CL"]
+  # Cl = ClCL*CLsystem
+  # localClmax,maxidx = find(Cl)
+  # ym = wingtip_r._ym
+  # println(ym)
 
 
   infocanard = vlm.fields_summary(canard)
@@ -381,17 +385,23 @@ function optwing(VARS,AOA)
   Liftwingr= infowingr["L"]
   CDinv_wingr=infowingr["CD"]
   S_r = vlm.planform_area(wingtip_r)
+  ClCL = system.sol["Cl/CL"]
+  Cl = ClCL*CLsystem
+  localClmax,maxidx = findmax(Cl)
+  ymr = wingtip_r._ym
+
+  if plotcl
+    if AOA==21.0
+      PyPlot.plot(ymr,ones(ymr)*1.4,"k-",label = "Critical cl = 1.4")
+    end
+    PyPlot.plot(ymr[1:end-2],Cl[1:length(ymr)-2],"+-",label = "AOA = $AOA")
+    PyPlot.xlabel("y/b")
+    PyPlot.ylabel("cl")
+    PyPlot.legend(loc = "best")
+  end
   Swing = S_l+S_r
 
-  # ClCLwing = wingtip_r.sol["Cl/CL"]
-  # Clwing = ClCLwing*CLwingr
-  # localClmax = maximum(Clwing)
-
   Liftwings = Liftwingl + Liftwingr
-
-  # liftsys = sum([system.sol["Ftot"][i] - dot(system.sol["Ftot"][i], Vinf(0,0)) for i in 1:vlm.get_m(system)])
-  #
-  # liftcanard = sum([canard.sol["Ftot"][i] - dot(canard.sol["Ftot"][i], Vinf(0,0)) for i in 1:vlm.get_m(canard)])
 
   #Such values are for the full airplane, so let's split it up between components:
   CDp_f, CDp_w, CDp_c, CDp_t=calc_CDp(magVinf; Cftype="transition")
@@ -446,7 +456,6 @@ end
 ################################################################################
 if load_snopt
   #Load the models
-  fileLoc = splitdir(@__FILE__)
   #Load Snopt
   push!(LOAD_PATH,"$(fileLoc[1])/../../Snopt.jl/src")
   using Snopt
@@ -481,13 +490,18 @@ function optwing(VARS)
     return optwing(VARS,AOA)
 end
 
-# xopt, fopt, info = snopt(optwing, xstart, lb, ub, options)
-# println(fopt)
-# println(xopt)
-# println(info)
+if load_snopt
+  AOA = 0.0
+  xopt, fopt, info = snopt(optwing, xstart, lb, ub, options)
+  println(fopt)
+  println(xopt)
+  println(info)
+end
 
 if sweep_AOA
-  for (i,AOA) in enumerate(-4.0:1.0:20.0)
+  AOA1 = linspace(21.0,-3.0,7)
+  for i = 1:length(AOA1)
+    AOA = AOA1[i]
     xopt2 = [5.40, 4.72145, 6.06702, 5.36544, 4.24697]
     out = optwing(xopt2)
     global ite_num = i
