@@ -1,0 +1,85 @@
+
+  ##############################################################################
+  #   PARAMETERS
+  ##############################################################################
+  # ------ CONSTANTS
+  g = 9.82           # (m/s^2) gravity
+  rhoinf= 1.225      # (kg/m^3) air density at sea level and 15Cdegs
+  mu = 1.846/10^5    # (kg/m*s) air dynamic viscosity
+
+  magVinf = 5.40     # (m/s) pptimum cruise speed
+
+  # ------ MATERIALS
+  rho_c = 3.6       # (kg/m^2) Cloroplast area density
+  rho_f = 24.8      # (kg/m^3) HD EPS foam density
+
+  # ------ GEOMETRIC PARAMETERS
+  # Fuselage
+  w = 8/100         # (m) width
+  l = 0.75          # (m) length
+
+  # Wing
+  b_w = 0.95        # (m) span
+  lambda_w = 30*pi/180        # (rad) sweep
+  c_wtip = 0.10     # (m) tip chord
+  c_wmid= 0.15     # (m) middle chord
+  c_wroot = 0.20    # (m) root chord
+  t_w = 0.1         # (ratio) ave max thickness/chord
+  barc_w = (c_wtip+c_wroot)/2
+  AR_w = 0.5*b_w/c_wtip # Aspect ratio of center section
+  tr_w = c_wtip/c_wmid      # Taper ratio
+  twist_wtip = 5.36544#*pi/180      # Tip twist
+  twist_wmid = 6.06702#*pi/180      # Middle twist
+  twist_wroot = 4.72145#*pi/180   # Root twist
+  gamma_w = 0*pi/180# Dihedral
+
+  # canard
+  vertical_offset = .035 #m
+  b_c = 0.25*b_w     # (m) span
+  lambda_c = 0*pi/180        # (rad) sweep
+  c_ctip = 0.05     # (m) tip chord
+  c_croot = 0.05    # (m) root chord
+  t_c = 0.15        # (ratio) ave max thickness/chord
+  barc_c = (c_ctip+c_croot)/2
+  AR_c = b_c/c_ctip   # Aspect ratio
+  tr_c = c_ctip/c_croot      # Taper ratio
+  twist_ctip = 4.24697#*pi/180      # Tip twist
+  twist_croot = 4.24697#*pi/180   # Root twist
+  gamma_c = 0*pi/180# Dihedral
+  # vertical tail
+  h_t = 0.12        # (m) height
+  l_troot = 0.15    # (m) root length
+  l_ttip = l_troot/3# (m) tip length
+  t_t = 0.04        # (m) thickness
+  barc_t = (l_ttip+l_troot)/2
+
+  Sref = 2*b_w*barc_w      # Reference area
+
+  # ------ AIRPLANE ASSEMBLY
+  x_w, y_w, z_w = l*2/4, 0, -w*1/8   # Wing's position in fuselage
+  x_c, y_c, z_c = l*1/16, 0, z_w+vertical_offset  # Canard's position in fuselage
+  x_t, y_t, z_t = l-l_troot, 0, w/2  # Tail's position in fuselage
+
+  # ------ USEFUL FUNCTIONS
+  calc_Re(Vinf, l) = rhoinf*Vinf*l/mu
+  calc_qinf(Vinf) = 1/2*rhoinf*Vinf.^2
+  Vinfmin, Vinfmax = 3, 20 # (m/s)
+
+
+  # ------ ASSUMPTIONS
+  CLratio = 0.1    # Canard-wing distribution of lift
+  #   CLratio = CLcanard/CLtot
+
+  # Mass of electronic components
+  M_base = (9 + 16 + 47 + 14 + 36 + 3 + 32 + 15 + 9*4 + 50)/1000
+  # Mass of structural components
+  M_f = rho_c * 4*w*l
+  M_w = rho_f * b_w/2/cos(lambda_w) * barc_w^2 * t_w
+  M_c = rho_f * b_c/2/cos(lambda_c) * barc_c^2 * t_c
+  M_t = rho_f * barc_t * h_t*t_t
+  # Total mass
+  Mtot = sum([M_base, M_f/10, M_w/2, M_c/2, M_t/2]) #Masses of airfoils will be less than square
+  # Required lift in cruise
+  L = Mtot*g
+
+  ####### END OF PARAMETERS ####################################################
