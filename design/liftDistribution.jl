@@ -148,21 +148,6 @@ function optwing(VARS,AOA)
 
   # Creates components
 
-  # Center wing is same width as canard
-  # centerwing = vlm.simpleWing(b_c, AR_w, tr_w, twist_wroot*180/pi,
-  # lambda_w*180/pi, gamma_w*180/pi;
-  # twist_tip=twist_wmid*180/pi, n=n_w, r=r_w)
-  # Wing tips
-  t_y_tip = b_w/2
-  t_x_tip = b_w/2*tan(lambda_w) #t_y_tip*tan(lambda3)
-  t_z_tip = 0.0#b_c/2*tan(lambda_w)+b_w/2*tan(lambda_w)
-  t_c_tip = c_wtip
-  t_twist_tip = twist_wtip
-  t_y_mid = b_c/2 #starts at the center section
-  t_x_mid = b_c/2*tan(lambda_w)
-  t_z_mid = 0.0#b_c/2*tan(lambda_w*180/pi)
-  t_c_mid = c_wmid
-  t_twist_mid = twist_wmid
 
   ## Left wingtip
   wingtip_l = vlm.Wing(t_x_tip, -t_y_tip, t_z_tip, t_c_tip, t_twist_tip)
