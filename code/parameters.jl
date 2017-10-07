@@ -33,21 +33,6 @@ twist_wmid = 6.06702#*pi/180      # Middle twist
 twist_wroot = 4.72145#*pi/180   # Root twist
 gamma_w = 0*pi/180# Dihedral
 
-# Center wing is same width as canard
-# centerwing = vlm.simpleWing(b_c, AR_w, tr_w, twist_wroot*180/pi,
-# lambda_w*180/pi, gamma_w*180/pi;
-# twist_tip=twist_wmid*180/pi, n=n_w, r=r_w)
-# Wing tips
-t_y_tip = b_w/2
-t_x_tip = b_w/2*tan(lambda_w) #t_y_tip*tan(lambda3)
-t_z_tip = 0.0#b_c/2*tan(lambda_w)+b_w/2*tan(lambda_w)
-t_c_tip = c_wtip
-t_twist_tip = twist_wtip
-t_y_mid = b_c/2 #starts at the center section
-t_x_mid = b_c/2*tan(lambda_w)
-t_z_mid = 0.0#b_c/2*tan(lambda_w*180/pi)
-t_c_mid = c_wmid
-t_twist_mid = twist_wmid
 
 # canard
 vertical_offset = .035 #m
@@ -68,6 +53,23 @@ l_troot = 0.15    # (m) root length
 l_ttip = l_troot/3# (m) tip length
 t_t = 0.04        # (m) thickness
 barc_t = (l_ttip+l_troot)/2
+
+
+# Center wing is same width as canard
+# centerwing = vlm.simpleWing(b_c, AR_w, tr_w, twist_wroot*180/pi,
+# lambda_w*180/pi, gamma_w*180/pi;
+# twist_tip=twist_wmid*180/pi, n=n_w, r=r_w)
+# Wing tips
+t_y_tip = b_w/2
+t_x_tip = b_w/2*tan(lambda_w) #t_y_tip*tan(lambda3)
+t_z_tip = 0.0#b_c/2*tan(lambda_w)+b_w/2*tan(lambda_w)
+t_c_tip = c_wtip
+t_twist_tip = twist_wtip
+t_y_mid = b_c/2 #starts at the center section
+t_x_mid = b_c/2*tan(lambda_w)
+t_z_mid = 0.0#b_c/2*tan(lambda_w*180/pi)
+t_c_mid = c_wmid
+t_twist_mid = twist_wmid
 
 Sref = 2*b_w*barc_w      # Reference area
 
