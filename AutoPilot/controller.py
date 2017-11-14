@@ -29,7 +29,7 @@ class autopilot:
         self.currentGPS.altitude=alt # m
         self.currentGPS.speed=speed # m/s
         self.currentGPS.ground_course=heading # rad clockwise from the north
-
+        self.target=0
         #self.state_subscriber = rospy.Subscriber("/fixedwing/state", State, self.stateCallback, queue_size=20)
         #self.gps_subscriber = rospy.Subscriber("/fixedwing/gps", GPS, self.gpsCallback, queue_size=10)
         #self.currentState = State()
@@ -39,16 +39,17 @@ class autopilot:
         #self.command_publisher = rospy.Publisher("/fixedwing/command", Command, queue_size=1)
     def simulationStep(self,dt):
         #Simplified Rudder Model
-        self.currentGPS.ground_course=self.currentGPS.ground_course+self.command.z
-        relVel=self.currentGPS.speed*0.07
-        lat=self.currentGPS.latitude-40.0
-        log=self.currentGPS.longitude+111.
+        self.currentGPS.ground_course=self.currentGPS.ground_course-self.command.z
+        #Current Vel~= 100m/s
+        relVel=self.currentGPS.speed*0.0000007
+        lat=self.currentGPS.latitude
+        log=self.currentGPS.longitude
         gc=self.currentGPS.ground_course
-        lat=lat-relVel*np.cos(gc)*dt
         log=log+relVel*np.sin(gc)*dt
+        lat=lat+relVel*np.cos(gc)*dt
         #Calculate New Position
-        self.currentGPS.latitude=lat+40.0
-        self.currentGPS.longitude=log-111.0
+        self.currentGPS.latitude=lat
+        self.currentGPS.longitude=log
 
     def stateCallback(self, msg):
         'dummy'
@@ -60,31 +61,47 @@ class autopilot:
             #self.currentGPS = msg
 
     def control(self):#, event):
-
         #command = Command()
         #command.mode = command.MODE_PASS_THROUGH
         #command.ignore = command.IGNORE_NONE
-
+        #----------------------------------------------------
         # edit starting right here!!!!
         #Controller Sensatvity Values
-        krudder=2
-        #Target Locations
-        targetx=40.267638-40
-        targety=-111.635170+111
-        lat=self.currentGPS.latitude-40
-        log=self.currentGPS.longitude+111
+        krudder=5
+
+        #Read in Data
+        lat=self.currentGPS.latitude
+        log=self.currentGPS.longitude
+
+        #Load Target Location
+        #Dummy Target Locations
+        tlat=40.267638
+        tlog=-111.635170
+        #Test For Location
+
+        #Calculate Distance
+        radius=6371*1000.0
+        dlat=np.radians(lat-tlat)
+        dlon=np.radians(log-tlog)
+        a = np.sin(dlat/2) * np.sin(dlat/2) + np.cos(np.radians(tlat)) \
+        * np.cos(np.radians(lat)) * np.sin(dlon/2) * np.sin(dlon/2)
+        c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
+        d = radius * c
+
+        print d
+
         #Calculate Target Angle
-        htarget=np.arctan2(lat-targetx,log-targety)
+        htarget=np.arctan2(tlog-log,tlat-lat)
         #Calculate heading error
-        error=self.currentGPS.ground_course-htarget
+        error=htarget-self.currentGPS.ground_course
         print 'error: ',error
+        self.harget=htarget
         rudder=-krudder*error
         if rudder>5:
             rudder=5
         elif rudder<-5:
             rudder=-5
         rudderscale=rudder/5.0
-
         # you can get GPS sensor information:
         # self.currentGPS.latitude # Deg
         # self.currentGPS.longitude # Deg
@@ -106,7 +123,7 @@ class autopilot:
         self.command.x = 0.0 # aileron servo command -1.0 to 1.0  positive rolls to right
         self.command.y = -0.03 # elevator servo command -1.0 to 1.0  positive pitches up
         self.command.z = rudderscale # rudder servo command -1.0 to 1.0  positive yaws to left
-
+        #-------------------------------------------------------------------------------------------------------------
         #self.command_publisher.publish(command)
 '''
 if __name__ == '__main__':
