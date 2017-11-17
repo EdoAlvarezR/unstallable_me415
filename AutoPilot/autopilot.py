@@ -112,7 +112,6 @@ class autopilot:
                 print "Going Home"
                 self.target=0
 
-
         #Calculate Target Angle
         htarget=np.arctan2(tlog-log,tlat-lat)
         #Calculate heading error
@@ -155,10 +154,19 @@ class autopilot:
         # self.currentState.p		# Body frame rollrate (rad/s)
         # self.currentState.q		# Body frame pitchrate (rad/s)
         # self.currentState.r		# Body frame yawrate (rad/s)
+        elevator=0.0
+        dalt=np.average(self.alt[0:2])-np.average(self.alt[2:4])
+        elevator = -dalt/50
+        print dalt
+        if elevator>0.7:
+            elevator=0.7
+        elif elevator<-0.7:
+            elevator=-0.7
 
-        command.F = throttle # throttle command 0.0 to 1.0
+
+        command.F = 1.0#throttle # throttle command 0.0 to 1.0
         command.x = 0.0 # aileron servo command -1.0 to 1.0  positive rolls to right
-        command.y = -0.02 # elevator servo command -1.0 to 1.0  positive pitches up
+        command.y = elevator-0.02 # elevator servo command -1.0 to 1.0  positive pitches up
 
         command.z = rudderscale #rudderscale # rudder servo command -1.0 to 1.0  positive yaws to left
         #-------------------------------------------------------------------------------------------------------------
