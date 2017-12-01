@@ -44,6 +44,8 @@ class autopilot:
         self.logs=np.ones(self.tsize)
         self.ha=np.ones(self.tsize)
         self.alt=np.ones(self.tsize)
+        #Print Tracking/Turing Option
+        self.dd = 0
         #--------------------------------------------------------------------------------
 
     def gpsCallback(self, msg):
@@ -169,6 +171,18 @@ class autopilot:
         command.y = elevator-0.02 # elevator servo command -1.0 to 1.0  positive pitches up
 
         command.z = rudderscale #rudderscale # rudder servo command -1.0 to 1.0  positive yaws to left
+        
+        #Output Turn Data to Console
+        #Scale between -100-100 and only show if the heading is greater than 1
+        if np.abs(rudderscale*100)<1:
+            if self.dd==0:
+                nothing=0
+            else:
+                print 0,"         Hold Course"
+                self.dd=0
+        else:
+            print round(rudderscale*100)
+            self.dd=1
         #-------------------------------------------------------------------------------------------------------------
 
         self.command_publisher.publish(command)
